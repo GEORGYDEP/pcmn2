@@ -1,0 +1,2138 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ComptaQuest - Maîtrise les Comptes de Bilan</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-primary: #0a0e1a;
+  --bg-secondary: #111827;
+  --bg-card: #1a2035;
+  --bg-card-hover: #1e2642;
+  --accent-green: #10b981;
+  --accent-green-glow: rgba(16,185,129,0.3);
+  --accent-red: #ef4444;
+  --accent-red-glow: rgba(239,68,68,0.3);
+  --accent-blue: #3b82f6;
+  --accent-blue-glow: rgba(59,130,246,0.25);
+  --accent-gold: #f59e0b;
+  --accent-gold-glow: rgba(245,158,11,0.3);
+  --accent-purple: #8b5cf6;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --border: #2a3454;
+  --debit-color: #3b82f6;
+  --credit-color: #f97316;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Background pattern */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: 
+    radial-gradient(ellipse at 20% 50%, rgba(59,130,246,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(139,92,246,0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(16,185,129,0.05) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ===== HEADER ===== */
+.app-header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  background: rgba(10,14,26,0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 0.75rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.logo-icon {
+  width: 38px; height: 38px;
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  font-weight: 800;
+  font-family: 'Space Mono', monospace;
+  box-shadow: 0 0 20px var(--accent-blue-glow);
+}
+
+.logo-text {
+  font-weight: 800;
+  font-size: 1.3rem;
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.5px;
+}
+
+.logo-sub {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.header-stats {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.stat-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.stat-badge .icon { font-size: 1.1rem; }
+.stat-badge .value { color: var(--accent-gold); font-weight: 700; }
+
+/* ===== MAIN CONTAINER ===== */
+.main-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 5rem 1.5rem 3rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* ===== WELCOME SCREEN ===== */
+.welcome-screen {
+  text-align: center;
+  padding: 3rem 1rem;
+  animation: fadeInUp 0.8s ease;
+}
+
+.welcome-title {
+  font-size: clamp(2.2rem, 5vw, 3.5rem);
+  font-weight: 900;
+  line-height: 1.1;
+  margin-bottom: 1rem;
+  letter-spacing: -1px;
+}
+
+.welcome-title .highlight {
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple), var(--accent-green));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.welcome-subtitle {
+  font-size: 1.15rem;
+  color: var(--text-secondary);
+  max-width: 600px;
+  margin: 0 auto 2.5rem;
+  line-height: 1.6;
+}
+
+/* ===== PROGRESS MAP ===== */
+.progress-map {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 700px;
+  margin: 0 auto 2rem;
+}
+
+.exercise-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.exercise-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 4px;
+  background: var(--text-muted);
+  transition: all 0.3s ease;
+}
+
+.exercise-card:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--accent-blue);
+  transform: translateX(4px);
+}
+
+.exercise-card:hover::before {
+  background: var(--accent-blue);
+  box-shadow: 0 0 10px var(--accent-blue-glow);
+}
+
+.exercise-card.locked {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.exercise-card.locked:hover {
+  transform: none;
+  border-color: var(--border);
+}
+
+.exercise-card.completed::before {
+  background: var(--accent-green);
+  box-shadow: 0 0 10px var(--accent-green-glow);
+}
+
+.exercise-card.current::before {
+  background: var(--accent-blue);
+  box-shadow: 0 0 10px var(--accent-blue-glow);
+  animation: pulse-bar 2s ease infinite;
+}
+
+@keyframes pulse-bar {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.ex-number {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.1rem;
+  font-family: 'Space Mono', monospace;
+  background: var(--bg-secondary);
+  border: 2px solid var(--border);
+  flex-shrink: 0;
+}
+
+.exercise-card.completed .ex-number {
+  background: var(--accent-green);
+  border-color: var(--accent-green);
+  color: #fff;
+}
+
+.exercise-card.current .ex-number {
+  background: var(--accent-blue);
+  border-color: var(--accent-blue);
+  color: #fff;
+  animation: pulse-num 2s ease infinite;
+}
+
+@keyframes pulse-num {
+  0%, 100% { box-shadow: 0 0 0 0 var(--accent-blue-glow); }
+  50% { box-shadow: 0 0 0 8px transparent; }
+}
+
+.ex-info { flex: 1; text-align: left; }
+.ex-info h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.15rem; }
+.ex-info p { font-size: 0.78rem; color: var(--text-muted); }
+
+.ex-stars {
+  display: flex;
+  gap: 0.2rem;
+  font-size: 1rem;
+}
+
+.star { opacity: 0.2; }
+.star.earned { opacity: 1; color: var(--accent-gold); }
+
+/* ===== EXERCISE SCREEN ===== */
+.exercise-screen {
+  display: none;
+  animation: fadeInUp 0.5s ease;
+}
+
+.exercise-screen.active { display: block; }
+
+.ex-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.back-btn:hover {
+  border-color: var(--accent-blue);
+  color: var(--text-primary);
+}
+
+.ex-progress-bar {
+  flex: 1;
+  max-width: 300px;
+  height: 8px;
+  background: var(--bg-secondary);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.ex-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+.ex-score {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.9rem;
+  color: var(--accent-gold);
+}
+
+.question-container {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.question-number {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--accent-blue);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 0.75rem;
+}
+
+.question-text {
+  font-size: 1.1rem;
+  font-weight: 600;
+  line-height: 1.5;
+  margin-bottom: 1.5rem;
+}
+
+.question-context {
+  background: var(--bg-secondary);
+  border-left: 3px solid var(--accent-blue);
+  padding: 1rem 1.25rem;
+  border-radius: 0 10px 10px 0;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* ===== ANSWER OPTIONS ===== */
+.options-grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.option-btn {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: var(--bg-secondary);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-align: left;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  width: 100%;
+}
+
+.option-btn:hover:not(.disabled) {
+  border-color: var(--accent-blue);
+  background: rgba(59,130,246,0.08);
+  transform: translateY(-1px);
+}
+
+.option-btn.correct {
+  border-color: var(--accent-green);
+  background: rgba(16,185,129,0.12);
+  box-shadow: 0 0 20px var(--accent-green-glow);
+}
+
+.option-btn.wrong {
+  border-color: var(--accent-red);
+  background: rgba(239,68,68,0.08);
+}
+
+.option-btn.disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+
+.option-letter {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  background: var(--bg-card);
+  flex-shrink: 0;
+}
+
+.option-btn.correct .option-letter {
+  background: var(--accent-green);
+  color: #fff;
+}
+
+.option-btn.wrong .option-letter {
+  background: var(--accent-red);
+  color: #fff;
+}
+
+/* ===== TABLE EXERCISES ===== */
+.account-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.88rem;
+  margin: 1rem 0;
+}
+
+.account-table thead th {
+  background: var(--bg-secondary);
+  padding: 0.75rem 0.6rem;
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-secondary);
+  border-bottom: 2px solid var(--border);
+}
+
+.account-table thead th:first-child { border-radius: 10px 0 0 0; }
+.account-table thead th:last-child { border-radius: 0 10px 0 0; }
+
+.account-table thead th.debit-col { color: var(--debit-color); }
+.account-table thead th.credit-col { color: var(--credit-color); }
+
+.account-table tbody td {
+  padding: 0.65rem 0.6rem;
+  border-bottom: 1px solid rgba(42,52,84,0.5);
+  vertical-align: middle;
+}
+
+.account-table tbody tr:last-child td { border-bottom: none; }
+
+.account-table tbody tr:hover {
+  background: rgba(59,130,246,0.04);
+}
+
+.account-table .total-row td {
+  font-weight: 700;
+  border-top: 2px solid var(--border);
+  background: var(--bg-secondary);
+  font-family: 'Space Mono', monospace;
+}
+
+.table-input {
+  width: 100%;
+  max-width: 120px;
+  padding: 0.4rem 0.6rem;
+  background: var(--bg-primary);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-family: 'Space Mono', monospace;
+  font-size: 0.85rem;
+  text-align: right;
+  transition: all 0.2s;
+}
+
+.table-input:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px var(--accent-blue-glow);
+}
+
+.table-input.correct-input {
+  border-color: var(--accent-green);
+  background: rgba(16,185,129,0.1);
+}
+
+.table-input.wrong-input {
+  border-color: var(--accent-red);
+  background: rgba(239,68,68,0.08);
+}
+
+.amount { font-family: 'Space Mono', monospace; font-size: 0.85rem; }
+.amount.debit { color: var(--debit-color); }
+.amount.credit { color: var(--credit-color); }
+
+/* ===== BILAN TABLE ===== */
+.bilan-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.bilan-side {
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.bilan-side-header {
+  padding: 0.75rem 1rem;
+  font-weight: 800;
+  text-align: center;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.bilan-side.actif .bilan-side-header {
+  background: linear-gradient(135deg, rgba(59,130,246,0.2), rgba(59,130,246,0.05));
+  color: var(--debit-color);
+}
+
+.bilan-side.passif .bilan-side-header {
+  background: linear-gradient(135deg, rgba(249,115,22,0.2), rgba(249,115,22,0.05));
+  color: var(--credit-color);
+}
+
+.bilan-section {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(42,52,84,0.4);
+}
+
+.bilan-section-title {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.bilan-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.35rem 0;
+  font-size: 0.85rem;
+}
+
+.bilan-row .account-name {
+  color: var(--text-secondary);
+}
+
+.bilan-row .bilan-input {
+  width: 110px;
+}
+
+.bilan-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  font-weight: 800;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.9rem;
+}
+
+.bilan-side.actif .bilan-total { color: var(--debit-color); }
+.bilan-side.passif .bilan-total { color: var(--credit-color); }
+
+/* ===== DND EXERCISE ===== */
+.dnd-zones {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin: 1.5rem 0;
+}
+
+.dnd-zone {
+  min-height: 200px;
+  background: var(--bg-secondary);
+  border: 2px dashed var(--border);
+  border-radius: 14px;
+  padding: 1rem;
+  transition: all 0.3s;
+}
+
+.dnd-zone.actif-zone {
+  border-color: rgba(59,130,246,0.3);
+}
+
+.dnd-zone.passif-zone {
+  border-color: rgba(249,115,22,0.3);
+}
+
+.dnd-zone.drag-over {
+  border-color: var(--accent-blue);
+  background: rgba(59,130,246,0.06);
+}
+
+.dnd-zone-title {
+  text-align: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.dnd-zone.actif-zone .dnd-zone-title { color: var(--debit-color); }
+.dnd-zone.passif-zone .dnd-zone-title { color: var(--credit-color); }
+
+.dnd-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.dnd-item {
+  padding: 0.55rem 1rem;
+  background: var(--bg-card);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  cursor: grab;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  user-select: none;
+}
+
+.dnd-item:hover {
+  border-color: var(--accent-blue);
+  transform: translateY(-2px);
+}
+
+.dnd-item:active { cursor: grabbing; }
+
+.dnd-item.placed-correct {
+  background: rgba(16,185,129,0.15);
+  border-color: var(--accent-green);
+  cursor: default;
+}
+
+.dnd-item.placed-wrong {
+  background: rgba(239,68,68,0.1);
+  border-color: var(--accent-red);
+}
+
+/* ===== FEEDBACK ===== */
+.feedback {
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  margin-top: 1rem;
+  display: none;
+  animation: fadeInUp 0.4s ease;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.feedback.show { display: block; }
+
+.feedback.correct-feedback {
+  background: rgba(16,185,129,0.1);
+  border: 1px solid rgba(16,185,129,0.3);
+  color: var(--accent-green);
+}
+
+.feedback.wrong-feedback {
+  background: rgba(239,68,68,0.08);
+  border: 1px solid rgba(239,68,68,0.25);
+  color: #fca5a5;
+}
+
+.feedback .fb-title {
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+/* ===== BUTTONS ===== */
+.btn-primary {
+  padding: 0.75rem 2rem;
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 4px 15px var(--accent-blue-glow);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px var(--accent-blue-glow);
+}
+
+.btn-validate {
+  padding: 0.65rem 1.5rem;
+  background: var(--accent-green);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-validate:hover {
+  background: #0d9668;
+  transform: translateY(-1px);
+}
+
+.btn-next {
+  padding: 0.65rem 1.5rem;
+  background: var(--accent-blue);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: none;
+}
+
+.btn-next:hover { background: #2563eb; }
+
+.btn-area {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}
+
+/* ===== RESULTS SCREEN ===== */
+.results-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(10,14,26,0.92);
+  backdrop-filter: blur(10px);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.4s ease;
+}
+
+.results-overlay.show { display: flex; }
+
+.results-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 2.5rem;
+  text-align: center;
+  max-width: 450px;
+  width: 90%;
+  animation: scaleIn 0.5s ease;
+}
+
+.results-stars {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.results-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+}
+
+.results-score {
+  font-family: 'Space Mono', monospace;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--accent-gold);
+  margin: 1rem 0;
+}
+
+.results-message {
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+/* ===== THEORY CARD ===== */
+.theory-card {
+  background: linear-gradient(135deg, rgba(59,130,246,0.08), rgba(139,92,246,0.05));
+  border: 1px solid rgba(59,130,246,0.2);
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.theory-card h4 {
+  color: var(--accent-blue);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.theory-card p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.theory-card .rule-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  background: var(--bg-primary);
+  border-radius: 8px;
+  margin: 0.3rem 0.2rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.rule-box.debit { color: var(--debit-color); border: 1px solid rgba(59,130,246,0.3); }
+.rule-box.credit { color: var(--credit-color); border: 1px solid rgba(249,115,22,0.3); }
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes confetti-fall {
+  0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+.confetti {
+  position: fixed;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  z-index: 300;
+  animation: confetti-fall 3s ease-in forwards;
+  pointer-events: none;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .main-container { padding: 4.5rem 1rem 2rem; }
+  .question-container { padding: 1.25rem; }
+  .bilan-container { grid-template-columns: 1fr; }
+  .dnd-zones { grid-template-columns: 1fr; }
+  .header-stats { display: none; }
+  .account-table { font-size: 0.78rem; }
+  .table-input { max-width: 90px; font-size: 0.78rem; }
+}
+
+/* ===== HELPER CLASSES ===== */
+.text-center { text-align: center; }
+.mt-1 { margin-top: 1rem; }
+.mt-2 { margin-top: 2rem; }
+.mb-1 { margin-bottom: 1rem; }
+.hidden { display: none !important; }
+
+/* Tooltip */
+.tooltip-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  cursor: help;
+  position: relative;
+}
+
+.debit-credit-hint {
+  display: inline-flex;
+  gap: 1rem;
+  margin: 0.75rem 0;
+  font-size: 0.8rem;
+}
+
+.debit-credit-hint span {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dot.debit { background: var(--debit-color); }
+.dot.credit { background: var(--credit-color); }
+
+/* Exercise type badge */
+.ex-type-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 1rem;
+}
+
+.ex-type-badge.classify { background: rgba(139,92,246,0.15); color: var(--accent-purple); }
+.ex-type-badge.fill { background: rgba(59,130,246,0.15); color: var(--accent-blue); }
+.ex-type-badge.analyze { background: rgba(16,185,129,0.15); color: var(--accent-green); }
+.ex-type-badge.build { background: rgba(245,158,11,0.15); color: var(--accent-gold); }
+
+/* Account tag */
+.account-tag {
+  display: inline-block;
+  padding: 0.15rem 0.55rem;
+  border-radius: 6px;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.account-tag.actif {
+  background: rgba(59,130,246,0.12);
+  color: var(--debit-color);
+  border: 1px solid rgba(59,130,246,0.25);
+}
+
+.account-tag.passif {
+  background: rgba(249,115,22,0.12);
+  color: var(--credit-color);
+  border: 1px solid rgba(249,115,22,0.25);
+}
+</style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="app-header">
+  <div class="logo">
+    <div class="logo-icon">CQ</div>
+    <div>
+      <div class="logo-text">ComptaQuest</div>
+      <div class="logo-sub">Comptes de Bilan</div>
+    </div>
+  </div>
+  <div class="header-stats">
+    <div class="stat-badge">
+      <span class="icon">⭐</span>
+      <span class="value" id="totalStars">0</span>
+      <span>/ 21</span>
+    </div>
+    <div class="stat-badge">
+      <span class="icon">🏆</span>
+      <span class="value" id="totalScore">0</span>
+      <span>pts</span>
+    </div>
+  </div>
+</header>
+
+<!-- ===== MAIN ===== -->
+<div class="main-container">
+
+  <!-- WELCOME SCREEN -->
+  <div id="welcomeScreen" class="welcome-screen">
+    <h1 class="welcome-title">
+      Deviens un pro des<br><span class="highlight">Comptes de Bilan</span>
+    </h1>
+    <p class="welcome-subtitle">
+      7 exercices progressifs pour maîtriser le fonctionnement des comptes d'actif et de passif, les règles débit/crédit et la construction du bilan.
+    </p>
+
+    <div class="progress-map" id="progressMap"></div>
+  </div>
+
+  <!-- EXERCISE CONTAINER -->
+  <div id="exerciseScreen" class="exercise-screen"></div>
+
+</div>
+
+<!-- RESULTS OVERLAY -->
+<div id="resultsOverlay" class="results-overlay">
+  <div class="results-card">
+    <div class="results-stars" id="resultsStars"></div>
+    <h2 class="results-title" id="resultsTitle"></h2>
+    <div class="results-score" id="resultsScoreDisplay"></div>
+    <p class="results-message" id="resultsMessage"></p>
+    <div class="btn-area">
+      <button class="btn-primary" onclick="closeResults()" id="resultsBtn">Continuer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// GAME STATE
+// ============================================================
+const state = {
+  totalScore: 0,
+  totalStars: 0,
+  exercises: [
+    { id: 1, title: 'Actif ou Passif ?', desc: 'Classe les comptes au bon endroit', stars: 0, unlocked: true, completed: false, maxScore: 100 },
+    { id: 2, title: 'Débit ou Crédit ?', desc: 'Identifie le bon mouvement comptable', stars: 0, unlocked: false, completed: false, maxScore: 100 },
+    { id: 3, title: 'Le compte Banque', desc: 'Complète un compte d\'actif', stars: 0, unlocked: false, completed: false, maxScore: 100 },
+    { id: 4, title: 'Le compte Fournisseurs', desc: 'Complète un compte de passif', stars: 0, unlocked: false, completed: false, maxScore: 100 },
+    { id: 5, title: 'Calcule le solde', desc: 'Détermine solde débiteur ou créditeur', stars: 0, unlocked: false, completed: false, maxScore: 100 },
+    { id: 6, title: 'Analyse d\'opérations', desc: 'Choisis le bon compte et le bon côté', stars: 0, unlocked: false, completed: false, maxScore: 100 },
+    { id: 7, title: 'Le Bilan d\'ouverture', desc: 'Construis un bilan complet', stars: 0, unlocked: false, completed: false, maxScore: 100 },
+  ],
+  currentExercise: null,
+  currentQuestion: 0,
+  currentScore: 0,
+};
+
+// ============================================================
+// PROGRESS MAP
+// ============================================================
+function renderProgressMap() {
+  const map = document.getElementById('progressMap');
+  map.innerHTML = '';
+  state.exercises.forEach((ex, i) => {
+    const status = ex.completed ? 'completed' : (ex.unlocked && !ex.completed ? 'current' : 'locked');
+    const card = document.createElement('div');
+    card.className = `exercise-card ${status}`;
+    card.innerHTML = `
+      <div class="ex-number">${ex.completed ? '✓' : ex.id}</div>
+      <div class="ex-info">
+        <h3>${ex.title}</h3>
+        <p>${ex.desc}</p>
+      </div>
+      <div class="ex-stars">
+        ${[1,2,3].map(s => `<span class="star ${s <= ex.stars ? 'earned' : ''}">⭐</span>`).join('')}
+      </div>
+    `;
+    if (ex.unlocked) {
+      card.addEventListener('click', () => startExercise(ex.id));
+    }
+    map.appendChild(card);
+  });
+}
+
+function updateHeader() {
+  document.getElementById('totalStars').textContent = state.totalStars;
+  document.getElementById('totalScore').textContent = state.totalScore;
+}
+
+// ============================================================
+// EXERCISE NAVIGATION
+// ============================================================
+function startExercise(id) {
+  state.currentExercise = id;
+  state.currentQuestion = 0;
+  state.currentScore = 0;
+  document.getElementById('welcomeScreen').style.display = 'none';
+  const screen = document.getElementById('exerciseScreen');
+  screen.classList.add('active');
+
+  switch(id) {
+    case 1: runExercise1(); break;
+    case 2: runExercise2(); break;
+    case 3: runExercise3(); break;
+    case 4: runExercise4(); break;
+    case 5: runExercise5(); break;
+    case 6: runExercise6(); break;
+    case 7: runExercise7(); break;
+  }
+}
+
+function goHome() {
+  document.getElementById('exerciseScreen').classList.remove('active');
+  document.getElementById('exerciseScreen').innerHTML = '';
+  document.getElementById('welcomeScreen').style.display = 'block';
+  renderProgressMap();
+  updateHeader();
+}
+
+function finishExercise(score, maxScore) {
+  const pct = score / maxScore;
+  const stars = pct >= 0.9 ? 3 : pct >= 0.6 ? 2 : pct >= 0.3 ? 1 : 0;
+  const ex = state.exercises.find(e => e.id === state.currentExercise);
+
+  const oldStars = ex.stars;
+  const oldScore = ex.completed ? ex.lastScore || 0 : 0;
+
+  if (stars > oldStars) {
+    state.totalStars += (stars - oldStars);
+    ex.stars = stars;
+  }
+
+  const scoreGain = Math.max(0, score - oldScore);
+  state.totalScore += scoreGain;
+  ex.lastScore = Math.max(score, oldScore);
+  ex.completed = true;
+
+  // Unlock next
+  const next = state.exercises.find(e => e.id === state.currentExercise + 1);
+  if (next) next.unlocked = true;
+
+  showResults(stars, score, maxScore);
+}
+
+function showResults(stars, score, maxScore) {
+  const overlay = document.getElementById('resultsOverlay');
+  overlay.classList.add('show');
+
+  document.getElementById('resultsStars').textContent = 
+    [1,2,3].map(s => s <= stars ? '⭐' : '☆').join(' ');
+
+  const titles = ['Continue tes efforts !', 'Pas mal !', 'Bien joué !', 'Excellent !'];
+  document.getElementById('resultsTitle').textContent = titles[stars];
+  document.getElementById('resultsScoreDisplay').textContent = `${score} / ${maxScore}`;
+
+  const messages = [
+    'Revois la théorie et réessaie, tu peux y arriver !',
+    'Tu as compris les bases, continue à t\'entraîner !',
+    'Très bonne maîtrise, encore un petit effort pour la perfection !',
+    'Tu maîtrises parfaitement ce chapitre ! 🎉'
+  ];
+  document.getElementById('resultsMessage').textContent = messages[stars];
+
+  if (stars === 3) launchConfetti();
+}
+
+function closeResults() {
+  document.getElementById('resultsOverlay').classList.remove('show');
+  goHome();
+}
+
+function launchConfetti() {
+  const colors = ['#3b82f6','#8b5cf6','#10b981','#f59e0b','#ef4444','#ec4899'];
+  for (let i = 0; i < 50; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti';
+    el.style.left = Math.random() * 100 + 'vw';
+    el.style.background = colors[Math.floor(Math.random() * colors.length)];
+    el.style.animationDelay = Math.random() * 2 + 's';
+    el.style.animationDuration = (2 + Math.random() * 2) + 's';
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 5000);
+  }
+}
+
+// ============================================================
+// HELPER: Build exercise header
+// ============================================================
+function exHeader(title, qNum, totalQ, score, maxScore) {
+  const pct = totalQ > 0 ? ((qNum) / totalQ * 100) : 0;
+  return `
+    <div class="ex-header">
+      <button class="back-btn" onclick="goHome()">← Retour</button>
+      <div class="ex-progress-bar"><div class="ex-progress-fill" style="width:${pct}%"></div></div>
+      <div class="ex-score">⭐ ${score} / ${maxScore}</div>
+    </div>
+  `;
+}
+
+function formatAmount(n) {
+  return n.toLocaleString('fr-BE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function parseInput(val) {
+  return parseFloat(val.replace(/\s/g, '').replace(',', '.')) || 0;
+}
+
+// ============================================================
+// EXERCISE 1: Actif ou Passif (Drag and Drop simulation via clicks)
+// ============================================================
+function runExercise1() {
+  const screen = document.getElementById('exerciseScreen');
+  const accounts = [
+    { name: '550 Banque', type: 'actif' },
+    { name: '440 Fournisseurs', type: 'passif' },
+    { name: '400 Clients', type: 'actif' },
+    { name: '100 Capital', type: 'passif' },
+    { name: '340 Marchandises', type: 'actif' },
+    { name: '173 Emprunts bancaires', type: 'passif' },
+    { name: '221 Constructions', type: 'actif' },
+    { name: '570 Caisse', type: 'actif' },
+    { name: '241 Matériel roulant', type: 'actif' },
+    { name: '455 Dettes fiscales', type: 'passif' },
+  ];
+
+  // Shuffle
+  const shuffled = [...accounts].sort(() => Math.random() - 0.5);
+  let placed = {};
+  let score = 0;
+  const maxScore = accounts.length * 10;
+
+  function render() {
+    const remaining = shuffled.filter(a => !placed[a.name]);
+    screen.innerHTML = `
+      ${exHeader('Actif ou Passif ?', Object.keys(placed).length, accounts.length, score, maxScore)}
+      <div class="question-container">
+        <span class="ex-type-badge classify">Classification</span>
+        <h2 style="font-size:1.3rem;font-weight:800;margin-bottom:0.5rem">Exercice 1 : Actif ou Passif ?</h2>
+        <p style="color:var(--text-secondary);margin-bottom:1rem;font-size:0.9rem">
+          Clique sur un compte, puis clique sur la zone <strong>ACTIF</strong> ou <strong>PASSIF</strong> pour le classer.
+        </p>
+
+        <div class="theory-card">
+          <h4>💡 Rappel</h4>
+          <p>
+            <span class="rule-box debit">ACTIF = ce que l'entreprise POSSÈDE</span>
+            <span class="rule-box credit">PASSIF = ce que l'entreprise DOIT</span>
+          </p>
+        </div>
+
+        <div class="dnd-items" id="dndItems">
+          ${remaining.map(a => `
+            <div class="dnd-item" data-name="${a.name}" data-type="${a.type}" onclick="selectDndItem(this)">
+              ${a.name}
+            </div>
+          `).join('')}
+        </div>
+
+        <div class="dnd-zones">
+          <div class="dnd-zone actif-zone" onclick="dropToZone('actif')">
+            <div class="dnd-zone-title">📦 ACTIF<br><small style="font-weight:400;color:var(--text-muted)">Ce que l'entreprise possède</small></div>
+            <div id="actifDropped">
+              ${Object.entries(placed).filter(([k,v]) => v.dropped === 'actif').map(([k,v]) => 
+                `<div class="dnd-item ${v.correct ? 'placed-correct' : 'placed-wrong'}" style="cursor:default">${k}</div>`
+              ).join('')}
+            </div>
+          </div>
+          <div class="dnd-zone passif-zone" onclick="dropToZone('passif')">
+            <div class="dnd-zone-title">📋 PASSIF<br><small style="font-weight:400;color:var(--text-muted)">Ce que l'entreprise doit</small></div>
+            <div id="passifDropped">
+              ${Object.entries(placed).filter(([k,v]) => v.dropped === 'passif').map(([k,v]) => 
+                `<div class="dnd-item ${v.correct ? 'placed-correct' : 'placed-wrong'}" style="cursor:default">${k}</div>`
+              ).join('')}
+            </div>
+          </div>
+        </div>
+
+        ${remaining.length === 0 ? `
+          <div class="feedback correct-feedback show">
+            <div class="fb-title">✅ Exercice terminé !</div>
+            <p>Tu as classé tous les comptes. Score : ${score} / ${maxScore}</p>
+          </div>
+          <div class="btn-area">
+            <button class="btn-primary" onclick="finishExercise(${score}, ${maxScore})">Voir mes résultats</button>
+          </div>
+        ` : ''}
+      </div>
+    `;
+  }
+
+  let selectedItem = null;
+
+  window.selectDndItem = function(el) {
+    document.querySelectorAll('.dnd-item').forEach(e => e.style.borderColor = '');
+    el.style.borderColor = 'var(--accent-blue)';
+    el.style.boxShadow = '0 0 10px var(--accent-blue-glow)';
+    selectedItem = { name: el.dataset.name, type: el.dataset.type };
+  };
+
+  window.dropToZone = function(zone) {
+    if (!selectedItem) return;
+    const correct = selectedItem.type === zone;
+    if (correct) score += 10;
+    placed[selectedItem.name] = { dropped: zone, correct };
+    selectedItem = null;
+    render();
+  };
+
+  render();
+}
+
+// ============================================================
+// EXERCISE 2: Débit ou Crédit (QCM)
+// ============================================================
+function runExercise2() {
+  const questions = [
+    { q: 'Un client nous paie 800 € par virement bancaire.', account: '550 Banque', accountType: 'actif', answer: 'debit', explanation: 'La banque reçoit de l\'argent → le compte d\'actif AUGMENTE → on le DÉBITE.' },
+    { q: 'Nous recevons la facture n°45 de notre fournisseur Colruyt.', account: '440 Fournisseurs', accountType: 'passif', answer: 'credit', explanation: 'Nouvelle facture = nouvelle dette → le compte de passif AUGMENTE → on le CRÉDITE.' },
+    { q: 'Nous payons notre fournisseur Nike par banque.', account: '440 Fournisseurs', accountType: 'passif', answer: 'debit', explanation: 'On rembourse une dette → le compte de passif DIMINUE → on le DÉBITE.' },
+    { q: 'Nous déposons 500 € d\'espèces en banque.', account: '570 Caisse', accountType: 'actif', answer: 'credit', explanation: 'L\'argent quitte la caisse → le compte d\'actif DIMINUE → on le CRÉDITE.' },
+    { q: 'L\'entreprise achète un ordinateur pour le bureau.', account: '240 Mobilier et matériel', accountType: 'actif', answer: 'debit', explanation: 'Nouveau matériel acquis → le compte d\'actif AUGMENTE → on le DÉBITE.' },
+    { q: 'L\'entreprise contracte un emprunt de 50 000 € chez BNP.', account: '173 Emprunt bancaire', accountType: 'passif', answer: 'credit', explanation: 'Nouvelle dette bancaire → le compte de passif AUGMENTE → on le CRÉDITE.' },
+    { q: 'Nous retirons 200 € au distributeur pour la caisse.', account: '550 Banque', accountType: 'actif', answer: 'credit', explanation: 'L\'argent quitte la banque → le compte d\'actif DIMINUE → on le CRÉDITE.' },
+    { q: 'Nous remboursons une partie de notre emprunt.', account: '173 Emprunt bancaire', accountType: 'passif', answer: 'debit', explanation: 'La dette diminue → le compte de passif DIMINUE → on le DÉBITE.' },
+    { q: 'Un client nous achète des marchandises à crédit.', account: '400 Clients', accountType: 'actif', answer: 'debit', explanation: 'Le client nous doit de l\'argent → la créance augmente → le compte d\'actif AUGMENTE → on le DÉBITE.' },
+    { q: 'Nous achetons un camion de livraison.', account: '241 Matériel roulant', accountType: 'actif', answer: 'debit', explanation: 'Nouveau véhicule → le compte d\'actif AUGMENTE → on le DÉBITE.' },
+  ];
+
+  let current = 0;
+  let score = 0;
+  const maxScore = questions.length * 10;
+
+  function renderQ() {
+    const screen = document.getElementById('exerciseScreen');
+    if (current >= questions.length) {
+      finishExercise(score, maxScore);
+      return;
+    }
+    const q = questions[current];
+    screen.innerHTML = `
+      ${exHeader('Débit ou Crédit ?', current, questions.length, score, maxScore)}
+      <div class="question-container">
+        <span class="ex-type-badge classify">Raisonnement</span>
+        <div class="question-number">Question ${current + 1} / ${questions.length}</div>
+        <div class="question-text">${q.q}</div>
+        <div class="question-context">
+          Compte concerné : <span class="account-tag ${q.accountType}">${q.account}</span>
+          <br>Type : <strong>${q.accountType === 'actif' ? 'Compte d\'ACTIF (ce que l\'entreprise possède)' : 'Compte de PASSIF (ce que l\'entreprise doit)'}</strong>
+        </div>
+        <p style="font-weight:600;margin-bottom:1rem;font-size:0.95rem">Ce compte doit-il être débité ou crédité ?</p>
+        <div class="options-grid" id="optionsGrid">
+          <button class="option-btn" onclick="answerEx2('debit', this)">
+            <span class="option-letter" style="color:var(--debit-color)">D</span>
+            <span>DÉBIT (colonne de gauche)</span>
+          </button>
+          <button class="option-btn" onclick="answerEx2('credit', this)">
+            <span class="option-letter" style="color:var(--credit-color)">C</span>
+            <span>CRÉDIT (colonne de droite)</span>
+          </button>
+        </div>
+        <div class="feedback" id="feedback"></div>
+        <div class="btn-area">
+          <button class="btn-next" id="btnNext" onclick="nextQ()">Question suivante →</button>
+        </div>
+      </div>
+    `;
+  }
+
+  window.answerEx2 = function(answer, btn) {
+    const btns = document.querySelectorAll('#optionsGrid .option-btn');
+    btns.forEach(b => b.classList.add('disabled'));
+
+    const q = questions[current];
+    const correct = answer === q.answer;
+
+    if (correct) {
+      btn.classList.add('correct');
+      score += 10;
+    } else {
+      btn.classList.add('wrong');
+      btns.forEach(b => {
+        if ((q.answer === 'debit' && b.textContent.includes('DÉBIT')) || 
+            (q.answer === 'credit' && b.textContent.includes('CRÉDIT'))) {
+          b.classList.add('correct');
+        }
+      });
+    }
+
+    const fb = document.getElementById('feedback');
+    fb.className = `feedback show ${correct ? 'correct-feedback' : 'wrong-feedback'}`;
+    fb.innerHTML = `
+      <div class="fb-title">${correct ? '✅ Correct !' : '❌ Pas tout à fait...'}</div>
+      <p>${q.explanation}</p>
+    `;
+
+    document.getElementById('btnNext').style.display = 'inline-block';
+    // Update score display
+    document.querySelector('.ex-score').textContent = `⭐ ${score} / ${maxScore}`;
+  };
+
+  window.nextQ = function() {
+    current++;
+    renderQ();
+  };
+
+  renderQ();
+}
+
+// ============================================================
+// EXERCISE 3: Compléter un compte d'actif (Banque)
+// ============================================================
+function runExercise3() {
+  const operations = [
+    { date: '01/06', libelle: 'Situation initiale', num: 0, debit: 8000, credit: null, solde: 8000 },
+    { date: '03/06', libelle: 'Extrait n°12 - encaissement client Dupuis', num: 1, debit: 3500, credit: null, solde: 11500 },
+    { date: '06/06', libelle: 'Extrait n°13 - virement à Proximus SRL', num: 2, debit: null, credit: 750, solde: 10750 },
+    { date: '10/06', libelle: 'Extrait n°14 - dépôt espèces', num: 3, debit: 1200, credit: null, solde: 11950 },
+    { date: '15/06', libelle: 'Extrait n°15 - virement à Zara SRL', num: 4, debit: null, credit: 2800, solde: 9150 },
+    { date: '20/06', libelle: 'Extrait n°16 - encaissement client Lambert', num: 5, debit: 1850, credit: null, solde: 11000 },
+    { date: '25/06', libelle: 'Extrait n°17 - paiement assurance', num: 6, debit: null, credit: 600, solde: 10400 },
+  ];
+
+  const screen = document.getElementById('exerciseScreen');
+  const maxScore = 100;
+
+  // Students need to fill in the solde column
+  screen.innerHTML = `
+    ${exHeader('Le compte Banque', 0, 1, 0, maxScore)}
+    <div class="question-container">
+      <span class="ex-type-badge fill">Compte d'actif</span>
+      <h2 style="font-size:1.2rem;font-weight:800;margin-bottom:0.5rem">Exercice 3 : Complète le compte Banque</h2>
+      <div class="question-context">
+        La boutique <strong>TechStyle SRL</strong> possède un compte courant chez BNP Paribas Fortis. 
+        Voici les opérations du mois de juin. Complète la colonne <strong>Solde</strong> après chaque opération.
+      </div>
+
+      <div class="theory-card">
+        <h4>💡 Rappel — Compte d'ACTIF</h4>
+        <p>
+          <span class="rule-box debit">Augmentation → DÉBIT (+)</span>
+          <span class="rule-box credit">Diminution → CRÉDIT (−)</span><br>
+          Solde = Solde précédent + Débit − Crédit
+        </p>
+      </div>
+
+      <div style="overflow-x:auto">
+        <table class="account-table">
+          <thead>
+            <tr>
+              <th style="width:65px">Date</th>
+              <th>Libellé</th>
+              <th style="width:40px">N°</th>
+              <th class="debit-col" style="width:110px">Débit (+)</th>
+              <th class="credit-col" style="width:110px">Crédit (−)</th>
+              <th style="width:130px">Solde</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${operations.map((op, i) => `
+              <tr>
+                <td>${op.date}</td>
+                <td>${op.libelle}</td>
+                <td>${op.num}</td>
+                <td class="amount debit">${op.debit ? formatAmount(op.debit) : ''}</td>
+                <td class="amount credit">${op.credit ? formatAmount(op.credit) : ''}</td>
+                <td>
+                  ${i === 0 ? `<span class="amount" style="font-weight:700">${formatAmount(op.solde)}</span>` :
+                    `<input type="text" class="table-input solde-input" data-index="${i}" data-expected="${op.solde}" placeholder="?">`
+                  }
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="btn-area">
+        <button class="btn-validate" onclick="validateEx3()">Vérifier mes réponses</button>
+      </div>
+      <div class="feedback" id="feedback3"></div>
+    </div>
+  `;
+
+  window.validateEx3 = function() {
+    const inputs = document.querySelectorAll('.solde-input');
+    let correct = 0;
+    const total = inputs.length;
+
+    inputs.forEach(input => {
+      const val = parseInput(input.value);
+      const expected = parseFloat(input.dataset.expected);
+      if (Math.abs(val - expected) < 0.01) {
+        input.classList.remove('wrong-input');
+        input.classList.add('correct-input');
+        correct++;
+      } else {
+        input.classList.remove('correct-input');
+        input.classList.add('wrong-input');
+        input.value = input.value + ' → ' + formatAmount(expected);
+      }
+      input.disabled = true;
+    });
+
+    const score = Math.round((correct / total) * maxScore);
+    const fb = document.getElementById('feedback3');
+    const allCorrect = correct === total;
+    fb.className = `feedback show ${allCorrect ? 'correct-feedback' : 'wrong-feedback'}`;
+    fb.innerHTML = `
+      <div class="fb-title">${allCorrect ? '✅ Parfait !' : `${correct} / ${total} soldes corrects`}</div>
+      <p>${allCorrect ? 
+        'Tu maîtrises le calcul des soldes dans un compte d\'actif !' : 
+        'N\'oublie pas : dans un compte d\'actif, le solde = solde précédent + débit − crédit.'}</p>
+    `;
+
+    document.querySelector('.btn-validate').style.display = 'none';
+    const btnArea = document.querySelector('.btn-area');
+    const finBtn = document.createElement('button');
+    finBtn.className = 'btn-primary';
+    finBtn.textContent = 'Voir mes résultats';
+    finBtn.onclick = () => finishExercise(score, maxScore);
+    btnArea.appendChild(finBtn);
+
+    document.querySelector('.ex-score').textContent = `⭐ ${score} / ${maxScore}`;
+  };
+}
+
+// ============================================================
+// EXERCISE 4: Compléter un compte de passif (Fournisseurs)
+// ============================================================
+function runExercise4() {
+  const operations = [
+    { date: '01/09', libelle: 'Situation initiale', num: 0, debit: null, credit: 6000, solde: 6000 },
+    { date: '04/09', libelle: 'Facture n°312 de Bpost SRL', num: 1, debit: null, credit: 2200, solde: 8200 },
+    { date: '08/09', libelle: 'Paiement facture n°298 de Proximus SRL', num: 2, debit: 1500, credit: null, solde: 6700 },
+    { date: '12/09', libelle: 'Facture n°327 de Delhaize SRL', num: 3, debit: null, credit: 3100, solde: 9800 },
+    { date: '18/09', libelle: 'Paiement facture n°312 de Bpost SRL', num: 4, debit: 2200, credit: null, solde: 7600 },
+    { date: '22/09', libelle: 'Facture n°340 de Colruyt SRL', num: 5, debit: null, credit: 1750, solde: 9350 },
+    { date: '28/09', libelle: 'Paiement partiel facture n°327 Delhaize', num: 6, debit: 1000, credit: null, solde: 8350 },
+  ];
+
+  const screen = document.getElementById('exerciseScreen');
+  const maxScore = 100;
+
+  screen.innerHTML = `
+    ${exHeader('Le compte Fournisseurs', 0, 1, 0, maxScore)}
+    <div class="question-container">
+      <span class="ex-type-badge fill">Compte de passif</span>
+      <h2 style="font-size:1.2rem;font-weight:800;margin-bottom:0.5rem">Exercice 4 : Complète le compte Fournisseurs</h2>
+      <div class="question-context">
+        L'entreprise <strong>GreenShop SRL</strong> gère ses dettes fournisseurs. 
+        Voici les opérations de septembre. Complète la colonne <strong>Solde</strong>.
+      </div>
+
+      <div class="theory-card">
+        <h4>💡 Rappel — Compte de PASSIF</h4>
+        <p>
+          <span class="rule-box credit">Augmentation → CRÉDIT (+)</span>
+          <span class="rule-box debit">Diminution → DÉBIT (−)</span><br>
+          ⚠️ C'est l'inverse de l'actif ! Solde = Solde précédent + Crédit − Débit
+        </p>
+      </div>
+
+      <div style="overflow-x:auto">
+        <table class="account-table">
+          <thead>
+            <tr>
+              <th style="width:65px">Date</th>
+              <th>Libellé</th>
+              <th style="width:40px">N°</th>
+              <th class="debit-col" style="width:110px">Débit (−)</th>
+              <th class="credit-col" style="width:110px">Crédit (+)</th>
+              <th style="width:130px">Solde</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${operations.map((op, i) => `
+              <tr>
+                <td>${op.date}</td>
+                <td>${op.libelle}</td>
+                <td>${op.num}</td>
+                <td class="amount debit">${op.debit ? formatAmount(op.debit) : ''}</td>
+                <td class="amount credit">${op.credit ? formatAmount(op.credit) : ''}</td>
+                <td>
+                  ${i === 0 ? `<span class="amount" style="font-weight:700">${formatAmount(op.solde)}</span>` :
+                    `<input type="text" class="table-input solde-input" data-index="${i}" data-expected="${op.solde}" placeholder="?">`
+                  }
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="btn-area">
+        <button class="btn-validate" onclick="validateEx4()">Vérifier mes réponses</button>
+      </div>
+      <div class="feedback" id="feedback4"></div>
+    </div>
+  `;
+
+  window.validateEx4 = function() {
+    const inputs = document.querySelectorAll('.solde-input');
+    let correct = 0;
+    const total = inputs.length;
+
+    inputs.forEach(input => {
+      const val = parseInput(input.value);
+      const expected = parseFloat(input.dataset.expected);
+      if (Math.abs(val - expected) < 0.01) {
+        input.classList.remove('wrong-input');
+        input.classList.add('correct-input');
+        correct++;
+      } else {
+        input.classList.remove('correct-input');
+        input.classList.add('wrong-input');
+        input.value = input.value + ' → ' + formatAmount(expected);
+      }
+      input.disabled = true;
+    });
+
+    const score = Math.round((correct / total) * maxScore);
+    const fb = document.getElementById('feedback4');
+    const allCorrect = correct === total;
+    fb.className = `feedback show ${allCorrect ? 'correct-feedback' : 'wrong-feedback'}`;
+    fb.innerHTML = `
+      <div class="fb-title">${allCorrect ? '✅ Parfait !' : `${correct} / ${total} soldes corrects`}</div>
+      <p>${allCorrect ? 
+        'Tu maîtrises le calcul des soldes dans un compte de passif !' : 
+        'Attention : dans un compte de PASSIF, c\'est l\'inverse ! Solde = solde précédent + crédit − débit.'}</p>
+    `;
+
+    document.querySelector('.btn-validate').style.display = 'none';
+    const btnArea = document.querySelector('.btn-area');
+    const finBtn = document.createElement('button');
+    finBtn.className = 'btn-primary';
+    finBtn.textContent = 'Voir mes résultats';
+    finBtn.onclick = () => finishExercise(score, maxScore);
+    btnArea.appendChild(finBtn);
+
+    document.querySelector('.ex-score').textContent = `⭐ ${score} / ${maxScore}`;
+  };
+}
+
+// ============================================================
+// EXERCISE 5: Calcule le solde final (mixed)
+// ============================================================
+function runExercise5() {
+  const questions = [
+    { 
+      account: '550 Banque', type: 'actif',
+      totalDebit: 18500, totalCredit: 7200,
+      answerSolde: 11300, answerType: 'debiteur',
+      context: 'Le compte 550 Banque de l\'entreprise FashionPlus SRL affiche les totaux suivants en fin de mois.'
+    },
+    {
+      account: '440 Fournisseurs', type: 'passif',
+      totalDebit: 4500, totalCredit: 12000,
+      answerSolde: 7500, answerType: 'crediteur',
+      context: 'Le compte 440 Fournisseurs de SportMax SRL a les totaux suivants en fin de trimestre.'
+    },
+    {
+      account: '400 Clients', type: 'actif',
+      totalDebit: 9800, totalCredit: 6300,
+      answerSolde: 3500, answerType: 'debiteur',
+      context: 'Le compte 400 Clients de la librairie PageTurner SRL montre ces totaux.'
+    },
+    {
+      account: '173 Emprunts bancaires', type: 'passif',
+      totalDebit: 15000, totalCredit: 50000,
+      answerSolde: 35000, answerType: 'crediteur',
+      context: 'Le compte 173 Emprunts bancaires de BuildIt SRL affiche ces totaux.'
+    },
+    {
+      account: '570 Caisse', type: 'actif',
+      totalDebit: 3200, totalCredit: 3200,
+      answerSolde: 0, answerType: 'nul',
+      context: 'Le compte 570 Caisse de QuickSnack SRL affiche exactement les mêmes totaux des deux côtés.'
+    },
+  ];
+
+  let current = 0;
+  let score = 0;
+  const maxScore = questions.length * 20;
+
+  function renderQ() {
+    const screen = document.getElementById('exerciseScreen');
+    if (current >= questions.length) {
+      finishExercise(score, maxScore);
+      return;
+    }
+    const q = questions[current];
+    screen.innerHTML = `
+      ${exHeader('Calcule le solde', current, questions.length, score, maxScore)}
+      <div class="question-container">
+        <span class="ex-type-badge analyze">Analyse</span>
+        <div class="question-number">Question ${current + 1} / ${questions.length}</div>
+        <div class="question-context">${q.context}</div>
+
+        <div style="background:var(--bg-secondary);border-radius:12px;padding:1.25rem;margin-bottom:1.5rem;text-align:center">
+          <div style="font-weight:700;margin-bottom:0.75rem">
+            <span class="account-tag ${q.type}">${q.account}</span>
+            <span style="color:var(--text-muted);font-size:0.8rem;margin-left:0.5rem">Compte de ${q.type}</span>
+          </div>
+          <div style="display:flex;justify-content:center;gap:2rem">
+            <div>
+              <div style="font-size:0.75rem;color:var(--debit-color);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.25rem">Total Débit</div>
+              <div class="amount debit" style="font-size:1.3rem;font-weight:700">${formatAmount(q.totalDebit)}</div>
+            </div>
+            <div>
+              <div style="font-size:0.75rem;color:var(--credit-color);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.25rem">Total Crédit</div>
+              <div class="amount credit" style="font-size:1.3rem;font-weight:700">${formatAmount(q.totalCredit)}</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:1rem;flex-wrap:wrap;align-items:end;margin-bottom:1rem">
+          <div style="flex:1;min-width:200px">
+            <label style="font-size:0.8rem;color:var(--text-muted);display:block;margin-bottom:0.3rem">Montant du solde (€)</label>
+            <input type="text" class="table-input" id="soldeAmount" placeholder="Ex: 5000,00" style="max-width:200px;width:100%">
+          </div>
+          <div style="flex:1;min-width:200px">
+            <label style="font-size:0.8rem;color:var(--text-muted);display:block;margin-bottom:0.3rem">Type de solde</label>
+            <div style="display:flex;gap:0.5rem" id="soldeTypeOptions">
+              <button class="option-btn" onclick="selectSoldeType('debiteur', this)" style="padding:0.5rem 1rem;font-size:0.85rem">
+                <span style="color:var(--debit-color);font-weight:700">SD</span> Débiteur
+              </button>
+              <button class="option-btn" onclick="selectSoldeType('crediteur', this)" style="padding:0.5rem 1rem;font-size:0.85rem">
+                <span style="color:var(--credit-color);font-weight:700">SC</span> Créditeur
+              </button>
+              <button class="option-btn" onclick="selectSoldeType('nul', this)" style="padding:0.5rem 1rem;font-size:0.85rem">
+                <span style="font-weight:700">=</span> Nul
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="btn-area" style="justify-content:flex-start">
+          <button class="btn-validate" onclick="validateEx5Q()">Vérifier</button>
+          <button class="btn-next" id="btnNext5" onclick="nextQ5()">Question suivante →</button>
+        </div>
+        <div class="feedback" id="feedback5"></div>
+      </div>
+    `;
+  }
+
+  let selectedSoldeType = null;
+
+  window.selectSoldeType = function(type, btn) {
+    document.querySelectorAll('#soldeTypeOptions .option-btn').forEach(b => {
+      b.style.borderColor = 'var(--border)';
+      b.style.background = 'var(--bg-secondary)';
+    });
+    btn.style.borderColor = 'var(--accent-blue)';
+    btn.style.background = 'rgba(59,130,246,0.1)';
+    selectedSoldeType = type;
+  };
+
+  window.validateEx5Q = function() {
+    const q = questions[current];
+    const inputAmount = parseInput(document.getElementById('soldeAmount').value);
+    const amountCorrect = Math.abs(inputAmount - q.answerSolde) < 0.01;
+    const typeCorrect = selectedSoldeType === q.answerType;
+
+    let pts = 0;
+    if (amountCorrect) pts += 10;
+    if (typeCorrect) pts += 10;
+    score += pts;
+
+    const amountInput = document.getElementById('soldeAmount');
+    amountInput.classList.add(amountCorrect ? 'correct-input' : 'wrong-input');
+    amountInput.disabled = true;
+
+    document.querySelectorAll('#soldeTypeOptions .option-btn').forEach(b => b.classList.add('disabled'));
+
+    const fb = document.getElementById('feedback5');
+    const allCorrect = amountCorrect && typeCorrect;
+    fb.className = `feedback show ${allCorrect ? 'correct-feedback' : 'wrong-feedback'}`;
+
+    const calcExplain = `Solde = Total Débit − Total Crédit = ${formatAmount(q.totalDebit)} − ${formatAmount(q.totalCredit)} = ${formatAmount(q.totalDebit - q.totalCredit)} €`;
+    
+    fb.innerHTML = `
+      <div class="fb-title">${allCorrect ? '✅ Parfait !' : `${pts}/20 points`}</div>
+      <p>${calcExplain}<br>
+      ${q.answerType === 'debiteur' ? 'Débit > Crédit → Solde DÉBITEUR. Normal pour un compte d\'actif !' :
+        q.answerType === 'crediteur' ? 'Crédit > Débit → Solde CRÉDITEUR. Normal pour un compte de passif !' :
+        'Débit = Crédit → Solde NUL, le compte est soldé !'
+      }
+      ${!amountCorrect ? '<br>Le montant correct était : <strong>' + formatAmount(q.answerSolde) + ' €</strong>' : ''}
+      ${!typeCorrect ? '<br>Le type correct était : <strong>Solde ' + (q.answerType === 'debiteur' ? 'DÉBITEUR' : q.answerType === 'crediteur' ? 'CRÉDITEUR' : 'NUL') + '</strong>' : ''}
+      </p>
+    `;
+
+    document.querySelector('.btn-validate').style.display = 'none';
+    document.getElementById('btnNext5').style.display = 'inline-block';
+    document.querySelector('.ex-score').textContent = `⭐ ${score} / ${maxScore}`;
+  };
+
+  window.nextQ5 = function() {
+    current++;
+    selectedSoldeType = null;
+    renderQ();
+  };
+
+  renderQ();
+}
+
+// ============================================================
+// EXERCISE 6: Analyse d'opérations complexes
+// ============================================================
+function runExercise6() {
+  const questions = [
+    {
+      scenario: 'La boulangerie PainDoré SRL achète un nouveau four professionnel d\'une valeur de 4 500 € à crédit (facture du fournisseur FourniPro SRL).',
+      asks: [
+        { q: 'Quel compte d\'actif est concerné ?', options: ['550 Banque', '230 Installations, machines', '340 Marchandises', '240 Mobilier'], answer: 1 },
+        { q: 'Ce compte d\'actif doit être...', options: ['Débité (il augmente)', 'Crédité (il diminue)'], answer: 0 },
+        { q: 'Quel compte de passif est concerné ?', options: ['100 Capital', '173 Emprunts', '440 Fournisseurs', '455 Dettes fiscales'], answer: 2 },
+        { q: 'Ce compte de passif doit être...', options: ['Débité (il diminue)', 'Crédité (il augmente)'], answer: 1 },
+      ]
+    },
+    {
+      scenario: 'Le salon de coiffure HairStyle SRL rembourse 2 000 € de son emprunt bancaire par virement depuis son compte BNP Paribas.',
+      asks: [
+        { q: 'Quel compte de passif est concerné ?', options: ['440 Fournisseurs', '100 Capital', '173 Emprunts bancaires', '455 Dettes fiscales'], answer: 2 },
+        { q: 'Ce compte de passif doit être...', options: ['Débité (la dette diminue)', 'Crédité (la dette augmente)'], answer: 0 },
+        { q: 'Quel compte d\'actif est concerné ?', options: ['570 Caisse', '400 Clients', '550 Banque', '340 Marchandises'], answer: 2 },
+        { q: 'Ce compte d\'actif doit être...', options: ['Débité (il augmente)', 'Crédité (il diminue)'], answer: 1 },
+      ]
+    },
+    {
+      scenario: 'La pizzeria Napoli SRL reçoit 1 200 € en espèces d\'un client qui paie sa facture sur place.',
+      asks: [
+        { q: 'Quel compte d\'actif reçoit l\'argent ?', options: ['550 Banque', '570 Caisse', '400 Clients', '340 Marchandises'], answer: 1 },
+        { q: 'Ce compte doit être...', options: ['Débité (la caisse augmente)', 'Crédité (la caisse diminue)'], answer: 0 },
+        { q: 'Quel autre compte d\'actif est impacté ?', options: ['550 Banque', '570 Caisse', '400 Clients', '221 Constructions'], answer: 2 },
+        { q: 'Ce compte Clients doit être...', options: ['Débité (la créance augmente)', 'Crédité (la créance diminue)'], answer: 1 },
+      ]
+    },
+  ];
+
+  let currentScenario = 0;
+  let currentAsk = 0;
+  let score = 0;
+  const totalAsks = questions.reduce((s, q) => s + q.asks.length, 0);
+  const maxScore = totalAsks * 10;
+  let answeredAsks = 0;
+
+  function renderQ() {
+    const screen = document.getElementById('exerciseScreen');
+    if (currentScenario >= questions.length) {
+      finishExercise(score, maxScore);
+      return;
+    }
+    const scenario = questions[currentScenario];
+    const ask = scenario.asks[currentAsk];
+
+    screen.innerHTML = `
+      ${exHeader('Analyse d\'opérations', answeredAsks, totalAsks, score, maxScore)}
+      <div class="question-container">
+        <span class="ex-type-badge analyze">Analyse complète</span>
+        <div class="question-number">Scénario ${currentScenario + 1} / ${questions.length} — Étape ${currentAsk + 1} / ${scenario.asks.length}</div>
+        <div class="question-context">📋 ${scenario.scenario}</div>
+        <div class="question-text">${ask.q}</div>
+        <div class="options-grid" id="optionsGrid6">
+          ${ask.options.map((opt, i) => `
+            <button class="option-btn" onclick="answerEx6(${i}, this)">
+              <span class="option-letter">${String.fromCharCode(65 + i)}</span>
+              <span>${opt}</span>
+            </button>
+          `).join('')}
+        </div>
+        <div class="feedback" id="feedback6"></div>
+        <div class="btn-area">
+          <button class="btn-next" id="btnNext6" onclick="nextAsk6()">Continuer →</button>
+        </div>
+      </div>
+    `;
+  }
+
+  window.answerEx6 = function(idx, btn) {
+    const scenario = questions[currentScenario];
+    const ask = scenario.asks[currentAsk];
+    const correct = idx === ask.answer;
+
+    document.querySelectorAll('#optionsGrid6 .option-btn').forEach((b, i) => {
+      b.classList.add('disabled');
+      if (i === ask.answer) b.classList.add('correct');
+    });
+    if (!correct) btn.classList.add('wrong');
+
+    if (correct) score += 10;
+    answeredAsks++;
+
+    const fb = document.getElementById('feedback6');
+    fb.className = `feedback show ${correct ? 'correct-feedback' : 'wrong-feedback'}`;
+    fb.innerHTML = `<div class="fb-title">${correct ? '✅ Correct !' : '❌ Pas tout à fait...'}</div>
+      <p>La bonne réponse est : <strong>${ask.options[ask.answer]}</strong></p>`;
+
+    document.getElementById('btnNext6').style.display = 'inline-block';
+    document.querySelector('.ex-score').textContent = `⭐ ${score} / ${maxScore}`;
+  };
+
+  window.nextAsk6 = function() {
+    const scenario = questions[currentScenario];
+    currentAsk++;
+    if (currentAsk >= scenario.asks.length) {
+      currentScenario++;
+      currentAsk = 0;
+    }
+    renderQ();
+  };
+
+  renderQ();
+}
+
+// ============================================================
+// EXERCISE 7: Construire un bilan d'ouverture
+// ============================================================
+function runExercise7() {
+  const screen = document.getElementById('exerciseScreen');
+  const maxScore = 100;
+
+  // Scenario data
+  const scenario = {
+    text: `Marc FONTAINE ouvre un magasin d'électronique "<strong>DigitalZone SRL</strong>" au 01/01. Voici sa situation :`,
+    items: [
+      'Un local commercial d\'une valeur de 95 000,00 € (dont 70 000,00 € financés par un emprunt bancaire sur 15 ans auprès de la banque ING)',
+      'Du matériel informatique (ordinateurs, écrans) pour 4 200,00 €',
+      'Du mobilier de magasin (comptoir, vitrines) pour 5 500,00 €',
+      'Un stock d\'appareils électroniques de 18 000,00 € (dont 3 500,00 € de factures non encore payées aux fournisseurs)',
+      'Caisse : 800,00 €',
+      'Compte courant ING : 9 500,00 €',
+    ],
+    // Answers
+    actif: {
+      '221 Constructions': 95000,
+      '230 Installations, machines et outillage': 4200,
+      '240 Mobilier et matériel de bureau': 5500,
+      '340 Marchandises': 18000,
+      '550 Banque (ING)': 9500,
+      '570 Caisse': 800,
+    },
+    passif: {
+      '100 Capital': 60500, // 133000 - 70000 - 3500 = 59500... let me recalc
+      // Total actif = 95000 + 4200 + 5500 + 18000 + 9500 + 800 = 133000
+      // Dettes = 70000 + 3500 = 73500
+      // Capital = 133000 - 73500 = 59500
+      '173 Établissements de crédit': 70000,
+      '440 Fournisseurs': 3500,
+    },
+    totalActif: 133000,
+    totalPassif: 133000,
+  };
+
+  // Fix capital
+  scenario.passif['100 Capital'] = 59500;
+
+  const allAccounts = [
+    ...Object.entries(scenario.actif).map(([k, v]) => ({ name: k, value: v, side: 'actif' })),
+    ...Object.entries(scenario.passif).map(([k, v]) => ({ name: k, value: v, side: 'passif' })),
+  ];
+
+  screen.innerHTML = `
+    ${exHeader('Le Bilan d\'ouverture', 0, 1, 0, maxScore)}
+    <div class="question-container">
+      <span class="ex-type-badge build">Construction</span>
+      <h2 style="font-size:1.2rem;font-weight:800;margin-bottom:0.5rem">Exercice 7 : Établis le bilan d'ouverture</h2>
+      <div class="question-context">
+        ${scenario.text}
+        <ul style="margin-top:0.75rem;padding-left:1.2rem;list-style:disc">
+          ${scenario.items.map(i => `<li style="margin-bottom:0.4rem">${i}</li>`).join('')}
+        </ul>
+      </div>
+
+      <div class="theory-card">
+        <h4>💡 Rappel</h4>
+        <p>
+          Total ACTIF = Total PASSIF (toujours !)<br>
+          Capital = Total Actif − Total Dettes
+        </p>
+      </div>
+
+      <p style="font-weight:600;margin-bottom:1rem">Complète le bilan en inscrivant les montants corrects :</p>
+
+      <div class="bilan-container">
+        <div class="bilan-side actif">
+          <div class="bilan-side-header">📦 ACTIF</div>
+          <div class="bilan-section">
+            <div class="bilan-section-title">Actifs immobilisés</div>
+            ${['221 Constructions', '230 Installations, machines et outillage', '240 Mobilier et matériel de bureau'].map(name => `
+              <div class="bilan-row">
+                <span class="account-name">${name}</span>
+                <input type="text" class="table-input bilan-input" data-account="${name}" data-side="actif" placeholder="?">
+              </div>
+            `).join('')}
+          </div>
+          <div class="bilan-section">
+            <div class="bilan-section-title">Actifs circulants</div>
+            ${['340 Marchandises', '550 Banque (ING)', '570 Caisse'].map(name => `
+              <div class="bilan-row">
+                <span class="account-name">${name}</span>
+                <input type="text" class="table-input bilan-input" data-account="${name}" data-side="actif" placeholder="?">
+              </div>
+            `).join('')}
+          </div>
+          <div class="bilan-total">
+            <span>TOTAL ACTIF</span>
+            <input type="text" class="table-input" id="totalActifInput" placeholder="?" style="max-width:120px;font-weight:700">
+          </div>
+        </div>
+
+        <div class="bilan-side passif">
+          <div class="bilan-side-header">📋 PASSIF</div>
+          <div class="bilan-section">
+            <div class="bilan-section-title">Capitaux propres</div>
+            <div class="bilan-row">
+              <span class="account-name">100 Capital</span>
+              <input type="text" class="table-input bilan-input" data-account="100 Capital" data-side="passif" placeholder="?">
+            </div>
+          </div>
+          <div class="bilan-section">
+            <div class="bilan-section-title">Dettes à plus d'un an</div>
+            <div class="bilan-row">
+              <span class="account-name">173 Étab. de crédit</span>
+              <input type="text" class="table-input bilan-input" data-account="173 Établissements de crédit" data-side="passif" placeholder="?">
+            </div>
+          </div>
+          <div class="bilan-section">
+            <div class="bilan-section-title">Dettes à un an au plus</div>
+            <div class="bilan-row">
+              <span class="account-name">440 Fournisseurs</span>
+              <input type="text" class="table-input bilan-input" data-account="440 Fournisseurs" data-side="passif" placeholder="?">
+            </div>
+          </div>
+          <div class="bilan-total">
+            <span>TOTAL PASSIF</span>
+            <input type="text" class="table-input" id="totalPassifInput" placeholder="?" style="max-width:120px;font-weight:700">
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-area">
+        <button class="btn-validate" onclick="validateEx7()">Vérifier mon bilan</button>
+      </div>
+      <div class="feedback" id="feedback7"></div>
+    </div>
+  `;
+
+  window.validateEx7 = function() {
+    const inputs = document.querySelectorAll('.bilan-input');
+    let correct = 0;
+    const total = inputs.length + 2; // +2 for totals
+
+    inputs.forEach(input => {
+      const accountName = input.dataset.account;
+      const side = input.dataset.side;
+      const expected = side === 'actif' ? scenario.actif[accountName] : scenario.passif[accountName];
+      const val = parseInput(input.value);
+
+      if (expected !== undefined && Math.abs(val - expected) < 0.01) {
+        input.classList.add('correct-input');
+        input.classList.remove('wrong-input');
+        correct++;
+      } else {
+        input.classList.add('wrong-input');
+        input.classList.remove('correct-input');
+        if (expected !== undefined) input.value = input.value + ' → ' + formatAmount(expected);
+      }
+      input.disabled = true;
+    });
+
+    // Check totals
+    const totalActifVal = parseInput(document.getElementById('totalActifInput').value);
+    const totalPassifVal = parseInput(document.getElementById('totalPassifInput').value);
+
+    const taInput = document.getElementById('totalActifInput');
+    const tpInput = document.getElementById('totalPassifInput');
+
+    if (Math.abs(totalActifVal - scenario.totalActif) < 0.01) {
+      taInput.classList.add('correct-input');
+      correct++;
+    } else {
+      taInput.classList.add('wrong-input');
+      taInput.value = taInput.value + ' → ' + formatAmount(scenario.totalActif);
+    }
+    taInput.disabled = true;
+
+    if (Math.abs(totalPassifVal - scenario.totalPassif) < 0.01) {
+      tpInput.classList.add('correct-input');
+      correct++;
+    } else {
+      tpInput.classList.add('wrong-input');
+      tpInput.value = tpInput.value + ' → ' + formatAmount(scenario.totalPassif);
+    }
+    tpInput.disabled = true;
+
+    const score = Math.round((correct / total) * maxScore);
+    const fb = document.getElementById('feedback7');
+    const allCorrect = correct === total;
+    fb.className = `feedback show ${allCorrect ? 'correct-feedback' : 'wrong-feedback'}`;
+    fb.innerHTML = `
+      <div class="fb-title">${allCorrect ? '✅ Bilan parfait !' : `${correct} / ${total} montants corrects`}</div>
+      <p>${allCorrect ? 
+        'Félicitations ! Tu sais construire un bilan d\'ouverture complet ! 🎉' : 
+        'N\'oublie pas : Capital = Total Actif − Total Dettes. Le total Actif doit TOUJOURS être égal au total Passif !'}<br>
+        Total Actif = ${formatAmount(scenario.totalActif)} € | Capital = ${formatAmount(scenario.totalActif)} − ${formatAmount(70000)} − ${formatAmount(3500)} = ${formatAmount(59500)} €
+      </p>
+    `;
+
+    document.querySelector('.btn-validate').style.display = 'none';
+    const btnArea = document.querySelector('.btn-area');
+    const finBtn = document.createElement('button');
+    finBtn.className = 'btn-primary';
+    finBtn.textContent = 'Voir mes résultats';
+    finBtn.onclick = () => finishExercise(score, maxScore);
+    btnArea.appendChild(finBtn);
+
+    document.querySelector('.ex-score').textContent = `⭐ ${score} / ${maxScore}`;
+  };
+}
+
+// ============================================================
+// INIT
+// ============================================================
+renderProgressMap();
+updateHeader();
+</script>
+</body>
+</html>
