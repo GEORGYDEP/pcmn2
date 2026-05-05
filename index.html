@@ -997,6 +997,8 @@ body::before {
     </div>
   </div>
   <div class="header-stats">
+    <span id="globalTimer" style="font-family:'Space Mono',monospace; font-size:0.85rem; color:var(--text-muted,#7a8599); display:none; align-items:center; gap:4px; background:rgba(59,130,246,0.08); border:1px solid rgba(59,130,246,0.2); border-radius:8px; padding:6px 10px;">⏱️ 00:00</span>
+    <span id="studentBadge" style="display:none; font-size:0.82rem; color:var(--text-primary,#e7ecf3); align-items:center; gap:6px; background:rgba(139,92,246,0.08); border:1px solid rgba(139,92,246,0.2); border-radius:8px; padding:6px 10px;"></span>
     <div class="stat-badge">
       <span class="icon">⭐</span>
       <span class="value" id="totalStars">0</span>
@@ -1022,6 +1024,13 @@ body::before {
       7 exercices progressifs pour maîtriser le fonctionnement des comptes d'actif et de passif, les règles débit/crédit et la construction du bilan.
     </p>
 
+    <!-- ===== BOUTONS CLASSEMENT (TRACKING) ===== -->
+    <div style="display:flex; gap:10px; justify-content:center; margin:0 auto 24px; flex-wrap:wrap;">
+      <button onclick="openLB('app')" style="padding:10px 20px; border-radius:10px; border:1px solid var(--accent-blue,#3b82f6); background:transparent; color:var(--accent-blue,#3b82f6); font-weight:700; cursor:pointer; font-family:inherit; font-size:0.9rem;">🏆 Classement</button>
+      <button onclick="openLB('global')" style="padding:10px 20px; border-radius:10px; border:1px solid var(--accent-orange,#f59e0b); background:transparent; color:var(--accent-orange,#f59e0b); font-weight:700; cursor:pointer; font-family:inherit; font-size:0.9rem;">🌍 Général</button>
+      <button id="restartBtn" onclick="resetGame()" style="display:none; padding:10px 20px; border-radius:10px; border:1px solid var(--text-muted,#7a8599); background:transparent; color:var(--text-muted,#7a8599); font-weight:700; cursor:pointer; font-family:inherit; font-size:0.9rem;">🔄 Rejouer</button>
+    </div>
+
     <div class="progress-map" id="progressMap"></div>
   </div>
 
@@ -1040,6 +1049,40 @@ body::before {
     <div class="btn-area">
       <button class="btn-primary" onclick="closeResults()" id="resultsBtn">Continuer</button>
     </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ===== MODAL EMAIL (TRACKING) ===== -->
+<!-- ============================================================ -->
+<div id="emailOverlay" style="display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);align-items:center;justify-content:center;font-family:'Outfit',sans-serif;">
+  <div style="background:var(--bg-secondary,#141a2a);border:1px solid var(--border,rgba(255,255,255,0.1));border-radius:16px;padding:32px;max-width:420px;width:90%;text-align:center;box-shadow:0 0 40px rgba(0,0,0,0.5);">
+    <div style="font-size:2rem;margin-bottom:12px;">🎓</div>
+    <h2 style="font-size:1.3rem;margin-bottom:4px;color:var(--text-primary,#e7ecf3);font-weight:800;">Identification</h2>
+    <p style="font-size:0.85rem;color:var(--text-muted,#7a8599);margin-bottom:20px;">Entre ton adresse email scolaire pour commencer.</p>
+    <input type="email" id="emailInput" placeholder="prenom.nom@eleve.istlm.be"
+      style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid var(--border,rgba(255,255,255,0.1));background:var(--bg-primary,#0a0e1a);color:var(--text-primary,#e7ecf3);font-size:1rem;outline:none;margin-bottom:12px;font-family:inherit;"
+      onkeydown="if(event.key==='Enter')validateEmail()">
+    <div id="emailError" style="color:#ef4444;font-size:0.82rem;margin-bottom:12px;min-height:1.2em;"></div>
+    <button id="emailBtn" onclick="validateEmail()"
+      style="width:100%;padding:12px;border-radius:10px;border:none;background:var(--accent-blue,#3b82f6);color:#fff;font-size:1rem;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity 0.2s;">
+      ✅ Vérifier et commencer
+    </button>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ===== MODAL CLASSEMENT (TRACKING) ===== -->
+<!-- ============================================================ -->
+<div id="lbOverlay" style="display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);font-family:'Outfit',sans-serif;" onclick="if(event.target===this)closeLB()">
+  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--bg-secondary,#141a2a);border:1px solid var(--border,rgba(255,255,255,0.1));border-radius:16px;padding:28px;width:95%;max-width:600px;max-height:85vh;overflow-y:auto;box-shadow:0 0 40px rgba(0,0,0,0.5);">
+    <button onclick="closeLB()" style="position:absolute;top:12px;right:12px;background:none;border:none;color:var(--text-muted,#7a8599);font-size:1.5rem;cursor:pointer;">✕</button>
+    <h2 id="lbTitle" style="font-size:1.2rem;margin-bottom:14px;color:var(--text-primary,#e7ecf3);font-weight:800;">🏆 Classement</h2>
+    <div style="display:flex;gap:8px;margin-bottom:20px;">
+      <button id="lbTabApp" onclick="switchLBTab('app')" style="flex:1;padding:10px;border-radius:10px;border:1px solid var(--accent-blue,#3b82f6);background:var(--accent-blue,#3b82f6);color:#fff;font-weight:700;cursor:pointer;font-family:inherit;font-size:0.85rem;">🏆 Cette application</button>
+      <button id="lbTabGlobal" onclick="switchLBTab('global')" style="flex:1;padding:10px;border-radius:10px;border:1px solid var(--accent-orange,#f59e0b);background:transparent;color:var(--accent-orange,#f59e0b);font-weight:700;cursor:pointer;font-family:inherit;font-size:0.85rem;">🌍 Classement général</button>
+    </div>
+    <div id="lbContent"><div style="text-align:center;padding:40px;color:var(--text-muted,#7a8599);">Chargement…</div></div>
   </div>
 </div>
 
@@ -1106,6 +1149,8 @@ function startExercise(id) {
   document.getElementById('welcomeScreen').style.display = 'none';
   const screen = document.getElementById('exerciseScreen');
   screen.classList.add('active');
+  // TRACKING : démarre le chrono pour cet exercice (si pas encore envoyé)
+  startExerciseTimer(id - 1);
 
   switch(id) {
     case 1: runExercise1(); break;
@@ -1147,6 +1192,18 @@ function finishExercise(score, maxScore) {
   // Unlock next
   const next = state.exercises.find(e => e.id === state.currentExercise + 1);
   if (next) next.unlocked = true;
+
+  // ============================================================
+  // TRACKING : anti-doublon + arrêt chrono + envoi au Google Sheet
+  // ============================================================
+  const exIdx = state.currentExercise - 1;
+  if (!APP.completedExercises.includes(exIdx)) {
+    APP.completedExercises.push(exIdx);
+    const result = stopExerciseTimer(exIdx);
+    const niveau = EXERCISE_FULL_NAMES[exIdx] || `Exercice ${state.currentExercise}`;
+    const temps = result ? result.temps : 0;
+    sendResult(niveau, score, maxScore, temps);
+  }
 
   showResults(stars, score, maxScore);
 }
@@ -2129,10 +2186,416 @@ function runExercise7() {
 }
 
 // ============================================================
+// ============================================================
+// TRACKING — Système universel de suivi (SPEC v5)
+// ============================================================
+// ============================================================
+
+const TRACKING = {
+  appName: "ComptaQuest",
+  totalNiveaux: 7,
+  sessionId: null,
+  scriptUrl: "https://script.google.com/macros/s/AKfycbx9bRMVuHU2mgFLii1KcQXD3LdZahnDH1rf1cWv9RuDvQAt0l3VtLtxzmbH7MtpJWRjfA/exec"
+};
+
+const APP = {
+  email: localStorage.getItem('student_email') || '',
+  classe: localStorage.getItem('student_classe') || '',
+  exerciseStartTime: null,
+  exerciseTimes: {},
+  exerciseScores: {},
+  scoreBeforeExercise: 0,
+  globalTimerStart: null,
+  globalTimerInterval: null,
+  completedExercises: []  // Anti-doublon : indices déjà envoyés au serveur (par session)
+};
+
+// Noms complets des exercices (pour l'envoi au serveur)
+const EXERCISE_FULL_NAMES = [
+  "Exercice 1 — Actif ou Passif",
+  "Exercice 2 — Débit ou Crédit",
+  "Exercice 3 — Le compte Banque",
+  "Exercice 4 — Le compte Fournisseurs",
+  "Exercice 5 — Calcule le solde",
+  "Exercice 6 — Analyse d'opérations",
+  "Exercice 7 — Le Bilan d'ouverture"
+];
+
+// ============================================================
+// TRACKING — Modal Email
+// ============================================================
+function showEmailModal() {
+  const overlay = document.getElementById('emailOverlay');
+  overlay.style.display = 'flex';
+  const input = document.getElementById('emailInput');
+  const saved = localStorage.getItem('student_email');
+  if (saved) input.value = saved;
+  setTimeout(() => input.focus(), 50);
+  document.getElementById('emailError').textContent = '';
+}
+
+function validateEmail() {
+  const input = document.getElementById('emailInput');
+  const btn = document.getElementById('emailBtn');
+  const errDiv = document.getElementById('emailError');
+  const email = input.value.trim().toLowerCase();
+
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    errDiv.textContent = '⚠️ Entre une adresse email valide.';
+    input.style.borderColor = '#ef4444';
+    return;
+  }
+
+  btn.textContent = '⏳ Vérification…';
+  btn.disabled = true;
+  errDiv.textContent = '';
+  input.style.borderColor = '';
+
+  const cbName = '_emailCb_' + Date.now();
+  const timeout = setTimeout(() => {
+    delete window[cbName];
+    const s = document.getElementById(cbName);
+    if (s) s.remove();
+    errDiv.textContent = '⚠️ Connexion impossible. Vérifie ta connexion internet.';
+    btn.textContent = '✅ Vérifier et commencer';
+    btn.disabled = false;
+  }, 10000);
+
+  window[cbName] = function(resp) {
+    clearTimeout(timeout);
+    delete window[cbName];
+    const s = document.getElementById(cbName);
+    if (s) s.remove();
+    btn.textContent = '✅ Vérifier et commencer';
+    btn.disabled = false;
+
+    if (resp && resp.found) {
+      const oldEmail = localStorage.getItem('student_email');
+      localStorage.setItem('student_email', email);
+      localStorage.setItem('student_classe', resp.classe || '');
+      APP.email = email;
+      APP.classe = resp.classe || '';
+
+      if (oldEmail && oldEmail !== email) {
+        resetProgression();
+      }
+
+      TRACKING.sessionId = new Date().toISOString();
+      document.getElementById('emailOverlay').style.display = 'none';
+      startGlobalTimer();
+      updateStudentBadge();
+      updateRestartButton();
+    } else {
+      errDiv.textContent = "⚠️ Cette adresse email n'est pas enregistrée. Vérifie l'orthographe ou demande à ton professeur de t'ajouter à la liste.";
+      input.style.borderColor = '#ef4444';
+    }
+  };
+
+  const sc = document.createElement('script');
+  sc.id = cbName;
+  sc.src = `${TRACKING.scriptUrl}?action=check_email&email=${encodeURIComponent(email)}&callback=${cbName}`;
+  sc.onerror = () => {
+    clearTimeout(timeout);
+    delete window[cbName];
+    sc.remove();
+    errDiv.textContent = '⚠️ Erreur de connexion au serveur.';
+    btn.textContent = '✅ Vérifier et commencer';
+    btn.disabled = false;
+  };
+  document.body.appendChild(sc);
+}
+
+// ============================================================
+// TRACKING — Reset progression (changement d'email)
+// ============================================================
+function resetProgression() {
+  state.totalScore = 0;
+  state.totalStars = 0;
+  state.exercises.forEach((ex, i) => {
+    ex.stars = 0;
+    ex.completed = false;
+    ex.unlocked = (i === 0);
+    ex.lastScore = 0;
+  });
+  state.currentExercise = null;
+  state.currentQuestion = 0;
+  state.currentScore = 0;
+  APP.completedExercises = [];
+  APP.exerciseTimes = {};
+  APP.exerciseScores = {};
+  APP.scoreBeforeExercise = 0;
+  APP.exerciseStartTime = null;
+  renderProgressMap();
+  updateHeader();
+  console.log('[TRACKING] Progression réinitialisée (nouvel email)');
+}
+
+// ============================================================
+// TRACKING — Reset complet (clic "Rejouer")
+// ============================================================
+function resetGame() {
+  // Régénère une nouvelle session (CRUCIAL pour le mode "Dernière partie")
+  TRACKING.sessionId = new Date().toISOString();
+  state.totalScore = 0;
+  state.totalStars = 0;
+  state.exercises.forEach((ex, i) => {
+    ex.stars = 0;
+    ex.completed = false;
+    ex.unlocked = (i === 0);
+    ex.lastScore = 0;
+  });
+  state.currentExercise = null;
+  state.currentQuestion = 0;
+  state.currentScore = 0;
+  APP.completedExercises = [];
+  APP.exerciseTimes = {};
+  APP.exerciseScores = {};
+  APP.scoreBeforeExercise = 0;
+  APP.exerciseStartTime = null;
+  // Redémarre le chrono global
+  if (APP.email) startGlobalTimer();
+  renderProgressMap();
+  updateHeader();
+  updateRestartButton();
+  document.getElementById('exerciseScreen').classList.remove('active');
+  document.getElementById('exerciseScreen').innerHTML = '';
+  document.getElementById('welcomeScreen').style.display = 'block';
+}
+
+// ============================================================
+// TRACKING — Affichage du badge élève + bouton Rejouer
+// ============================================================
+function updateStudentBadge() {
+  const badge = document.getElementById('studentBadge');
+  if (!badge) return;
+  if (APP.email) {
+    const name = APP.email.split('@')[0].split(/[._-]/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    badge.style.display = 'inline-flex';
+    badge.innerHTML = `<span style="opacity:0.7;">👤</span> <strong>${name}</strong>${APP.classe ? ` <span style="opacity:0.5;">·</span> <span style="opacity:0.85;">${APP.classe}</span>` : ''}`;
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function updateRestartButton() {
+  const btn = document.getElementById('restartBtn');
+  if (!btn) return;
+  // Affiche le bouton si au moins un exercice complété
+  const anyDone = state.exercises.some(e => e.completed);
+  btn.style.display = anyDone ? 'inline-block' : 'none';
+}
+
+// ============================================================
+// TRACKING — Chronomètre global visible
+// ============================================================
+function startGlobalTimer() {
+  APP.globalTimerStart = Date.now();
+  const el = document.getElementById('globalTimer');
+  if (el) el.style.display = 'inline-flex';
+  if (APP.globalTimerInterval) clearInterval(APP.globalTimerInterval);
+  APP.globalTimerInterval = setInterval(updateTimerDisplay, 1000);
+  updateTimerDisplay();
+}
+
+function updateTimerDisplay() {
+  const el = document.getElementById('globalTimer');
+  if (!el || !APP.globalTimerStart) return;
+  const elapsed = Math.floor((Date.now() - APP.globalTimerStart) / 1000);
+  el.textContent = '⏱️ ' + String(Math.floor(elapsed/60)).padStart(2,'0') + ':' + String(elapsed%60).padStart(2,'0');
+}
+
+// ============================================================
+// TRACKING — Chronomètre par exercice (invisible)
+// ============================================================
+function startExerciseTimer(exIdx) {
+  // Ne redémarre pas si déjà envoyé pour cette session
+  if (APP.completedExercises.includes(exIdx)) return;
+  APP.exerciseStartTime = Date.now();
+  APP.scoreBeforeExercise = state.totalScore || 0;
+}
+
+function stopExerciseTimer(exIdx) {
+  if (!APP.exerciseStartTime) return null;
+  const tempsSec = Math.round((Date.now() - APP.exerciseStartTime) / 1000);
+  APP.exerciseTimes[exIdx] = tempsSec;
+  APP.exerciseStartTime = null;
+  return { temps: tempsSec };
+}
+
+// ============================================================
+// TRACKING — Envoi des résultats au Google Sheet (POST no-cors)
+// ============================================================
+function sendResult(niveau, points, pointsMax, temps) {
+  if (!APP.email || !TRACKING.sessionId) {
+    console.warn('[TRACKING] Envoi annulé : email ou sessionId manquant');
+    return;
+  }
+  const payload = {
+    email: APP.email,
+    classe: APP.classe,
+    app: TRACKING.appName,
+    niveau: niveau,
+    points: points,
+    pointsMax: pointsMax,
+    temps: temps,
+    totalNiveaux: TRACKING.totalNiveaux,
+    sessionId: TRACKING.sessionId
+  };
+  console.log('[TRACKING] Envoi:', payload);
+  fetch(TRACKING.scriptUrl, {
+    method: "POST",
+    mode: "no-cors",
+    headers: { "Content-Type": "text/plain" },
+    body: JSON.stringify(payload)
+  }).catch(err => console.warn('[TRACKING] Erreur envoi:', err));
+  // Met à jour le bouton "Rejouer" après chaque envoi
+  updateRestartButton();
+}
+
+// ============================================================
+// TRACKING — Modal Classement (JSONP, jamais fetch)
+// ============================================================
+let currentLBTab = 'app';
+
+function openLB(tab) {
+  if (!APP.email) {
+    showEmailModal();
+    return;
+  }
+  document.getElementById('lbOverlay').style.display = 'block';
+  switchLBTab(tab || 'app');
+}
+
+function closeLB() {
+  document.getElementById('lbOverlay').style.display = 'none';
+}
+
+function switchLBTab(tab) {
+  currentLBTab = tab;
+  const btnApp = document.getElementById('lbTabApp');
+  const btnGlobal = document.getElementById('lbTabGlobal');
+  const title = document.getElementById('lbTitle');
+  const classeLabel = APP.classe ? ` (${APP.classe})` : '';
+  if (tab === 'app') {
+    btnApp.style.background = 'var(--accent-blue,#3b82f6)'; btnApp.style.color = '#fff';
+    btnGlobal.style.background = 'transparent'; btnGlobal.style.color = 'var(--accent-orange,#f59e0b)';
+    if (title) title.textContent = `🏆 Classement — ${TRACKING.appName}${classeLabel}`;
+  } else {
+    btnGlobal.style.background = 'var(--accent-orange,#f59e0b)'; btnGlobal.style.color = '#fff';
+    btnApp.style.background = 'transparent'; btnApp.style.color = 'var(--accent-blue,#3b82f6)';
+    if (title) title.textContent = `🌍 Classement général${classeLabel}`;
+  }
+  fetchLeaderboard(tab);
+}
+
+function fetchLeaderboard(tab) {
+  const content = document.getElementById('lbContent');
+  content.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted,#7a8599);">⏳ Chargement…</div>';
+
+  const action = tab === 'app' ? 'leaderboard_app' : 'leaderboard_global';
+  const cbName = '_lbCb_' + Date.now();
+
+  const timeout = setTimeout(() => {
+    delete window[cbName];
+    const s = document.getElementById(cbName);
+    if (s) s.remove();
+    content.innerHTML = '<div style="text-align:center;padding:40px;"><div style="color:#ef4444;margin-bottom:12px;">⚠️ Connexion impossible</div><button onclick="fetchLeaderboard(\''+tab+'\')" style="padding:8px 20px;border-radius:8px;border:1px solid var(--border,rgba(255,255,255,0.1));background:var(--bg-primary,#0a0e1a);color:var(--text-primary,#e7ecf3);cursor:pointer;font-family:inherit;">Réessayer</button></div>';
+  }, 10000);
+
+  window[cbName] = function(resp) {
+    clearTimeout(timeout);
+    delete window[cbName];
+    const s = document.getElementById(cbName);
+    if (s) s.remove();
+    const lbData = resp && (resp.leaderboard || resp.data);
+    if (!lbData || lbData.length === 0) {
+      content.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted,#7a8599);">🏁 Aucun résultat pour le moment</div>';
+      return;
+    }
+    renderLeaderboard(lbData, tab);
+  };
+
+  let url = `${TRACKING.scriptUrl}?action=${action}&callback=${cbName}&mode=last`;
+  if (tab === 'app') url += `&app=${encodeURIComponent(TRACKING.appName)}`;
+  if (APP.classe) url += `&classe=${encodeURIComponent(APP.classe)}`;
+  const sc = document.createElement('script');
+  sc.id = cbName;
+  sc.src = url;
+  sc.onerror = () => {
+    clearTimeout(timeout);
+    delete window[cbName];
+    sc.remove();
+    content.innerHTML = '<div style="text-align:center;padding:40px;color:#ef4444;">⚠️ Erreur de connexion</div>';
+  };
+  document.body.appendChild(sc);
+}
+
+function renderLeaderboard(data, tab) {
+  const content = document.getElementById('lbContent');
+  const myEmail = (APP.email || '').toLowerCase();
+
+  // Classement général : tri par pourcentage côté client (plus équitable)
+  if (tab === 'global' && data.length > 0) {
+    data = data.slice().sort((a, b) => {
+      const pctA = a.pct || 0;
+      const pctB = b.pct || 0;
+      if (pctB !== pctA) return pctB - pctA;
+      return (a.totalTemps || 0) - (b.totalTemps || 0);
+    });
+    data.forEach((entry, i) => { entry.rang = i + 1; });
+  }
+
+  const me = data.find(r => r.email === myEmail);
+  let html = '';
+
+  // Encart personnel
+  if (me) {
+    const pct = me.pct != null ? me.pct : (me.pourcentage != null ? me.pourcentage : 0);
+    const count = tab === 'app'
+      ? (me.niveauxCompletes || me.niveaux || 0)
+      : (me.appsCompletes || me.apps || 0);
+    const total = tab === 'app' ? (me.totalNiveaux || 0) : (me.totalPossibleNiveaux || 0);
+    const label = tab === 'app' ? 'niveaux' : 'apps';
+    const prog = total > 0 ? count + '/' + total + ' ' + label : count + ' ' + label;
+    const pctC = pct >= 80 ? '#10b981' : pct >= 50 ? '#f59e0b' : '#ef4444';
+    html += `<div style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.3);border-radius:12px;padding:16px;margin-bottom:16px;display:flex;justify-content:space-around;text-align:center;flex-wrap:wrap;gap:8px;">
+      <div><div style="font-size:1.3rem;font-weight:800;color:var(--accent-blue,#3b82f6);">#${me.rang}</div><div style="font-size:0.7rem;color:var(--text-muted,#7a8599);">RANG</div></div>
+      <div><div style="font-size:1.3rem;font-weight:800;color:var(--text-primary,#e7ecf3);">${me.totalPoints}</div><div style="font-size:0.7rem;color:var(--text-muted,#7a8599);">POINTS</div></div>
+      <div><div style="font-size:1.3rem;font-weight:800;color:${pctC};">${pct}%</div><div style="font-size:0.7rem;color:var(--text-muted,#7a8599);">RÉUSSITE</div></div>
+      <div><div style="font-size:1.1rem;font-weight:800;color:var(--text-muted,#7a8599);">${prog}</div><div style="font-size:0.7rem;color:var(--text-muted,#7a8599);">PROGRESSION</div></div>
+    </div>`;
+  }
+
+  // Tableau
+  const medals = ['🥇','🥈','🥉'];
+  html += '<table style="width:100%;border-collapse:collapse;font-size:0.85rem;color:var(--text-primary,#e7ecf3);"><tr style="border-bottom:1px solid var(--border,rgba(255,255,255,0.1));"><th style="text-align:left;padding:8px 4px;color:var(--text-muted,#7a8599);font-size:0.72rem;">#</th><th style="text-align:left;padding:8px 4px;color:var(--text-muted,#7a8599);font-size:0.72rem;">Élève</th><th style="text-align:right;padding:8px 4px;color:var(--text-muted,#7a8599);font-size:0.72rem;">Pts</th><th style="text-align:right;padding:8px 4px;color:var(--text-muted,#7a8599);font-size:0.72rem;">%</th><th style="text-align:right;padding:8px 4px;color:var(--text-muted,#7a8599);font-size:0.72rem;">Temps</th></tr>';
+
+  data.forEach(row => {
+    const r = row.rang || 0;
+    const name = row.email.split('@')[0].split(/[._-]/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    const pct = row.pct != null ? row.pct : (row.pourcentage != null ? row.pourcentage : 0);
+    const temps = row.totalTemps || row.totalTime || 0;
+    const isMe = row.email === myEmail;
+    const pctC = pct >= 80 ? '#10b981' : pct >= 50 ? '#f59e0b' : '#ef4444';
+    let tStr = '—';
+    if (temps > 0) {
+      const m = Math.floor(temps / 60), s = temps % 60;
+      tStr = m > 0 ? m + 'm' + String(s).padStart(2, '0') + 's' : s + 's';
+    }
+    html += `<tr style="border-bottom:1px solid rgba(255,255,255,0.03);background:${isMe ? 'rgba(59,130,246,0.08)' : 'transparent'};"><td style="padding:8px 4px;font-weight:700;">${r <= 3 ? medals[r - 1] : r}</td><td style="padding:8px 4px;${isMe ? 'font-weight:800;color:var(--accent-blue,#3b82f6);' : ''}">${name}</td><td style="padding:8px 4px;text-align:right;font-weight:700;color:var(--accent-blue,#3b82f6);">${row.totalPoints}</td><td style="padding:8px 4px;text-align:right;font-weight:700;color:${pctC};">${pct}%</td><td style="padding:8px 4px;text-align:right;color:var(--text-muted,#7a8599);font-family:'Space Mono',monospace;font-size:0.78rem;">${tStr}</td></tr>`;
+  });
+  html += '</table>';
+  content.innerHTML = html;
+}
+
+// ============================================================
 // INIT
 // ============================================================
 renderProgressMap();
 updateHeader();
+updateStudentBadge();
+updateRestartButton();
+showEmailModal();  // Toujours afficher au lancement
 </script>
 </body>
 </html>
